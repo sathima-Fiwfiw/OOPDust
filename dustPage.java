@@ -23,8 +23,13 @@ class dustPage extends JFrame{
     private String inputText; // ตัวแปรสำหรับเก็บข้อความที่อ่านจาก JTextField
     private List<JButton> buttons;
     private List<Integer> dustData = new ArrayList<>();
-    private JLabel population;
     private JTextField text_Rpopulation;
+    private JLabel population; //จำนวนประชากร
+    JLabel dust_Quantity; //ปริมาณฝุ่น
+    JLabel populationGood ; //จำนวนประชากรสุขภาพดี
+    JLabel populationSick; //จำนวนประชากรป่วย
+    JLabel  perSick; //เปอร์เซ้นคนป่วย
+    String populText;
 
     dustPage(){
         setBounds(50,10,1220, 700); 
@@ -38,20 +43,20 @@ class dustPage extends JFrame{
        mainPanel_1.setBackground(pastelBlue);
        mainPanel_1.setBorder(new EmptyBorder(3, 0, 0, 0));
 
-       // สร้าง panel หลัก ของฝน
-       JPanel rainPanel = new JPanel(new GridLayout(1, 2, 15, 15));
-       JPanel rainButton =  createRain( );
-       rainPanel.add(rainButton);
-       mainPanel_1.add(rainPanel,BorderLayout.SOUTH);
-
-       // สร้าง panel หลัก ของข้อความ
+        // สร้าง panel ของช่องข้อความที่มีคนป่วย,คนสุภาพดี...
        JPanel MessagePanel = new JPanel();
        MessagePanel.setBackground(pastelPink);
        JPanel Message=createMessage( );
        MessagePanel.add(Message);
        mainPanel_1.add(MessagePanel,BorderLayout.CENTER);
 
-       add(mainPanel_1,BorderLayout.WEST);
+       // สร้าง panel ของปุ่มฝน
+       JPanel rainPanel = new JPanel(new GridLayout(1, 2, 15, 15));
+       JPanel rainButton =  createRain( );
+       rainPanel.add(rainButton);
+       mainPanel_1.add(rainPanel,BorderLayout.SOUTH);
+
+       add(mainPanel_1,BorderLayout.WEST); //เพิ่มลงเฟรมหลัก
 
 
         //Panel หลักขวา
@@ -97,6 +102,8 @@ class dustPage extends JFrame{
 
         // เพิ่ม mainPanel_2 เข้าไปใน JFrame
        add(mainPanel_2,BorderLayout.EAST);
+
+       addTextMessage();
 
     }
 
@@ -206,7 +213,6 @@ class dustPage extends JFrame{
         }
     }
 
-
     // เมธอดปุ่มฝน
     private JPanel createRain( ){
         JPanel panel = new JPanel(new GridLayout(1,2,50,50));
@@ -307,28 +313,28 @@ class dustPage extends JFrame{
         JPanel panel_1 = new JPanel(new FlowLayout(FlowLayout.LEFT));
         panel_1.setBorder(new EmptyBorder(10, 0, 10, 80));
         panel_1.setBackground(lightYellow);
-        JLabel dust_Quantity = new JLabel("Dust Quantity : "+" 0"); //ปริมาณฝุ่น
+        dust_Quantity = new JLabel("Dust Quantity : "+" 0"); //ปริมาณฝุ่น
 
         JPanel panel_3 = new JPanel(new FlowLayout(FlowLayout.LEFT));
         panel_3.setBorder(new EmptyBorder(10, 0, 10, 80));
         panel_3.setBackground(lightYellow);
-        JLabel populationGood = new JLabel("Population Good : "+" 0"); //จำนวนประชากรสุขภาพดี
+        populationGood = new JLabel("Population Good : "+" 0"); //จำนวนประชากรสุขภาพดี
 
         JPanel panel_4 = new JPanel(new FlowLayout(FlowLayout.LEFT));
         panel_4.setBorder(new EmptyBorder(10, 0, 10, 80));
         panel_4.setBackground(lightYellow);
-        JLabel populationSick = new JLabel("Population Sick : "+" 0"); //จำนวนประชากรป่วย
+        populationSick = new JLabel("Population Sick : "+" 0"); //จำนวนประชากรป่วย
 
         JPanel panel_5 = new JPanel(new FlowLayout(FlowLayout.LEFT));
         panel_5.setBorder(new EmptyBorder(10, 0, 10, 80));
         panel_5.setBackground(lightYellow);
-        JLabel buttonNum = new JLabel("% Sick People  : "+" 0%"); //เปอร์เซ็นคนป่วย
+        perSick = new JLabel("% Sick People  : "+" 0%"); //เปอร์เซ็นคนป่วย
 
         panel_1.add(population);
         panel_2.add(dust_Quantity);
         panel_3.add(populationGood);
         panel_4.add(populationSick);
-        panel_5.add(buttonNum);
+        panel_5.add(perSick);
         panel.add(panel_1);
         panel.add(panel_2);
         panel.add(panel_3);
@@ -349,7 +355,7 @@ class dustPage extends JFrame{
         Button_Rpopulation.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                String populText = text_Rpopulation.getText();
+                populText = text_Rpopulation.getText();
                 population.setText("Population : " + populText); // อัปเดต population
                 System.out.println("ประชากรที่รับเข้ามา"+populText);
             }
@@ -366,20 +372,34 @@ class dustPage extends JFrame{
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     JButton clickedButton = (JButton) e.getSource();
-            }
-        });
+                    int buttonIndex = buttons.indexOf(clickedButton); // หา index ของปุ่มที่ถูกคลิก
+                    if (buttonIndex >= dustData.size()) return; // ตรวจสอบว่า index ไม่เกินขนาดของ dustData
+                    
+                    int numPopul = Integer.parseInt(populText);
+                    int num = dustData.get(buttonIndex); // ใช้ index ที่ถูกคลิกเพื่อดึงค่า dustData
+                    
+                    int randomSick = 0;
+                    if (num <= 50) {
+                        randomSick = (int)(Math.random() * 10);
+                    } else if (num <= 100) {
+                        randomSick = (int)(Math.random() * 10) + 10;
+                    } else if (num <= 150) {
+                        randomSick = (int)(Math.random() * 10) + 20;
+                    } else if (num <= 250) {
+                        randomSick = (int)(Math.random() * 21) + 30;
+                    }
+    
+                    int sickpeople = numPopul * randomSick / 100;
+                    int goodpeople = numPopul - sickpeople;
+    
+                    perSick.setText("% Sick People  : " + randomSick + " %");
+                    populationGood.setText("Population Good : " + goodpeople);
+                    populationSick.setText("Population Sick : " + sickpeople);
+                    dust_Quantity.setText("Dust Quantity : " + num); // อัปเดตค่า dustData ที่เป็นค่าของปุ่มที่ถูกคลิก
+                }
+            });
+        }
     }
-
-    }
-
-
-
-
-
-
-
-
-
         //เมธอด กดกลับ
     public JPanel createBack( ) {
         JPanel panel = new JPanel(new GridLayout(1,2,10,10));
